@@ -5,7 +5,7 @@ import React, { Suspense } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "@/firebase";
 import { useAuth } from "@/app/providers";
-import { useGetRooms } from "../api";
+import { useCreateRoom, useGetRooms } from "../api";
 import { getPath } from "@/app/utils";
 
 const RoomList = () => {
@@ -30,16 +30,12 @@ const RoomList = () => {
 
 export const SideNav = () => {
   const { user, userId } = useAuth();
+  const { mutateAsync: createRoom } = useCreateRoom();
 
   const addNewRoom = async () => {
     const roomName = prompt("ルーム名を入力してください。");
     if (roomName) {
-      const newRoomRef = collection(db, "rooms");
-      await addDoc(newRoomRef, {
-        name: roomName,
-        userId: userId,
-        createdAt: serverTimestamp(),
-      });
+      createRoom({ name: roomName });
     }
   };
 
