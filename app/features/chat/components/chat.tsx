@@ -1,27 +1,9 @@
 "use client";
 import { Button, Textarea, useAutoResizeTextArea } from "@/app/components/ui";
-import { db } from "@/firebase";
-import {
-  Timestamp,
-  addDoc,
-  collection,
-  doc,
-  onSnapshot,
-  orderBy,
-  query,
-  serverTimestamp,
-} from "firebase/firestore";
+import { Timestamp } from "firebase/firestore";
 import React, { Fragment, Suspense, useEffect, useRef, useState } from "react";
 import { BsSend } from "react-icons/bs";
-import OpenAI from "openai";
-import { useParams } from "next/navigation";
-import { useGetMessages } from "../api";
-
-type Message = {
-  text: string;
-  sender: "user" | "bot";
-  createdAt: Timestamp;
-};
+import { useCreateGtpMessage, useCreateMessage, useGetMessages } from "../api";
 
 const Messages = () => {
   const { data: messages } = useGetMessages();
@@ -37,7 +19,7 @@ const Messages = () => {
     }
   }, [messages]);
   return (
-    <div className="flex-grow overflow-y-auto font-bold" ref={scrollDiv}>
+    <div className="flex-grow overflow-y-auto font-bold pr-4" ref={scrollDiv}>
       {messages.map(({ sender, text }, index) => (
         <Fragment key={index}>
           {sender === "bot" && (
@@ -61,44 +43,15 @@ const Messages = () => {
 };
 
 export const Chat = () => {
-  const openai = new OpenAI({
-    apiKey: process.env.NEXT_PUBLIC_OPENAI_KEY,
-    dangerouslyAllowBrowser: true,
-  });
-  const { roomId } = useParams();
   const [message, setMessage] = useState<string>();
   const { textAreaRef, handleChange } = useAutoResizeTextArea();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { mutateAsync: createMessage, isPending: isCreatingMessage } = useCreateMessage();
+  const { mutateAsync: createGptMessage, isPending: isCreatingGtpMessage } = useCreateGtpMessage();
 
   const handleSubmit = async () => {
     if (!message?.trim()) return;
-
-    const messageData = {
-      text: message,
-      sender: "user",
-      createdAt: serverTimestamp(),
-    };
-
-    const roomDoc = doc(db, "rooms", roomId.toString());
-    const messageCollectionRef = collection(roomDoc, "messages");
-    await addDoc(messageCollectionRef, messageData);
-
-    setMessage("");
-    setIsLoading(true);
-
-    const gpt3Response = await openai.chat.completions.create({
-      messages: [{ role: "user", content: message }],
-      model: "gpt-3.5-turbo",
-    });
-
-    setIsLoading(false);
-
-    const botResponse = gpt3Response.choices[0].message.content;
-    await addDoc(messageCollectionRef, {
-      text: botResponse,
-      sender: "bot",
-      createdAt: serverTimestamp(),
-    });
+    createMessage({ text: message });
+    createGptMessage({ text: message });
   };
 
   return (
@@ -107,6 +60,8 @@ export const Chat = () => {
       <Suspense fallback={<>loading</>}>
         <Messages />
       </Suspense>
+      {isCreatingGtpMessage && <p>loading</p>}
+      {isCreatingMessage && <p className="text-right">loading</p>}
       <div className="flex-shrink-0 relative flex gap-2 items-end">
         <Textarea
           defaultValue={message}

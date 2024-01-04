@@ -15,6 +15,7 @@ import {
   where,
 } from "firebase/firestore";
 import { useParams } from "next/navigation";
+import OpenAI from "openai";
 
 const getRooms = async (userId: string) => {
   const roomCollection = collection(db, "rooms");
@@ -93,6 +94,83 @@ export const useGetMessages = () => {
   });
 };
 
-const createMessage = () => {
+type createMessageRequest = {
+  roomId: string;
+  text: string;
+};
+const createMessage = async ({ text, roomId }: createMessageRequest) => {
+  const messageData = {
+    text,
+    sender: "user",
+    createdAt: serverTimestamp(),
+  };
 
-}
+  const roomDoc = doc(db, "rooms", roomId.toString());
+  const messageCollectionRef = collection(roomDoc, "messages");
+  await addDoc(messageCollectionRef, messageData);
+};
+
+export const useCreateMessage = () => {
+  const { toast } = useToast();
+  const { roomId } = useParams();
+
+  return useMutation({
+    mutationKey: ["messages", { roomId }],
+    mutationFn: ({ text }: Pick<createMessageRequest, "text">) =>
+      createMessage({
+        text,
+        roomId: roomId.toString(),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["messages", { roomId }] });
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Failed to create message.",
+      });
+    },
+  });
+};
+
+const createGtpMessage = async ({ text, roomId }: createMessageRequest) => {
+  const openai = new OpenAI({
+    apiKey: process.env.NEXT_PUBLIC_OPENAI_KEY,
+    dangerouslyAllowBrowser: true,
+  });
+  const gpt3Response = await openai.chat.completions.create({
+    messages: [{ role: "user", content: text }],
+    model: "gpt-3.5-turbo",
+  });
+  const roomDoc = doc(db, "rooms", roomId.toString());
+  const messageCollectionRef = collection(roomDoc, "messages");
+  const botResponse = gpt3Response.choices[0].message.content;
+  await addDoc(messageCollectionRef, {
+    text: botResponse,
+    sender: "bot",
+    createdAt: serverTimestamp(),
+  });
+};
+
+export const useCreateGtpMessage = () => {
+  const { toast } = useToast();
+  const { roomId } = useParams();
+
+  return useMutation({
+    mutationKey: ["messages", { roomId }],
+    mutationFn: ({ text }: Pick<createMessageRequest, "text">) =>
+      createGtpMessage({
+        text,
+        roomId: roomId.toString(),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["messages", { roomId }] });
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Failed to create message.",
+      });
+    },
+  });
+};
