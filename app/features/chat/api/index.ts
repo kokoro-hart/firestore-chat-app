@@ -4,14 +4,17 @@ import { useAuth } from "@/app/providers";
 import { db } from "@/firebase";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import {
+  Timestamp,
   addDoc,
   collection,
+  doc,
   getDocs,
   orderBy,
   query,
   serverTimestamp,
   where,
 } from "firebase/firestore";
+import { useParams } from "next/navigation";
 
 const getRooms = async (userId: string) => {
   const roomCollection = collection(db, "rooms");
@@ -68,3 +71,28 @@ export const useCreateRoom = () => {
     },
   });
 };
+
+type Message = {
+  text: string;
+  sender: "user" | "bot";
+  createdAt: Timestamp;
+};
+const getMessages = async (roomId: string) => {
+  const roomDocRef = doc(db, "rooms", roomId);
+  const messagesCollectionRef = collection(roomDocRef, "messages");
+  const q = query(messagesCollectionRef, orderBy("createdAt"));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((doc) => doc.data() as Message);
+};
+
+export const useGetMessages = () => {
+  const { roomId } = useParams();
+  return useSuspenseQuery({
+    queryKey: ["messages", { roomId }],
+    queryFn: () => getMessages(roomId.toString()),
+  });
+};
+
+const createMessage = () => {
+
+}

@@ -11,10 +11,11 @@ import {
   query,
   serverTimestamp,
 } from "firebase/firestore";
-import React, { Fragment, useEffect, useRef, useState } from "react";
+import React, { Fragment, Suspense, useEffect, useRef, useState } from "react";
 import { BsSend } from "react-icons/bs";
 import OpenAI from "openai";
 import { useParams } from "next/navigation";
+import { useGetMessages } from "../api";
 
 type Message = {
   text: string;
@@ -22,39 +23,9 @@ type Message = {
   createdAt: Timestamp;
 };
 
-export const Chat = () => {
-  const openai = new OpenAI({
-    apiKey: process.env.NEXT_PUBLIC_OPENAI_KEY,
-    dangerouslyAllowBrowser: true,
-  });
-  const { roomId } = useParams();
-  const [message, setMessage] = useState<string>();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const { textAreaRef, handleChange } = useAutoResizeTextArea();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+const Messages = () => {
+  const { data: messages } = useGetMessages();
   const scrollDiv = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (roomId) {
-      const fetchMessages = async () => {
-        const roomDocRef = doc(db, "rooms", roomId.toString());
-        const messagesCollectionRef = collection(roomDocRef, "messages");
-
-        const q = query(messagesCollectionRef, orderBy("createdAt"));
-
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-          const newMessages = snapshot.docs.map((doc) => doc.data() as Message);
-          setMessages(newMessages);
-        });
-
-        return () => {
-          unsubscribe();
-        };
-      };
-
-      fetchMessages();
-    }
-  }, [roomId]);
 
   useEffect(() => {
     if (scrollDiv.current) {
@@ -65,6 +36,39 @@ export const Chat = () => {
       });
     }
   }, [messages]);
+  return (
+    <div className="flex-grow overflow-y-auto font-bold" ref={scrollDiv}>
+      {messages.map(({ sender, text }, index) => (
+        <Fragment key={index}>
+          {sender === "bot" && (
+            <div className="tex-left">
+              <div className="bg-muted inline-block rounded-lg px-4 py-2">
+                <p className="font-sm font-normal">{text}</p>
+              </div>
+            </div>
+          )}
+          {sender === "user" && (
+            <div className="text-right">
+              <div className=" bg-black inline-block rounded-lg px-4 py-2">
+                <p className="font-sm font-normal text-white">{text}</p>
+              </div>
+            </div>
+          )}
+        </Fragment>
+      ))}
+    </div>
+  );
+};
+
+export const Chat = () => {
+  const openai = new OpenAI({
+    apiKey: process.env.NEXT_PUBLIC_OPENAI_KEY,
+    dangerouslyAllowBrowser: true,
+  });
+  const { roomId } = useParams();
+  const [message, setMessage] = useState<string>();
+  const { textAreaRef, handleChange } = useAutoResizeTextArea();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSubmit = async () => {
     if (!message?.trim()) return;
@@ -98,29 +102,11 @@ export const Chat = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4 h-full max-w-[780px] w-full m-auto">
+    <div className="flex flex-col justify-between gap-4 h-full max-w-[780px] w-full m-auto">
       <h1 className="text-2xl">Room1</h1>
-      <div className="flex-grow overflow-y-auto font-bold" ref={scrollDiv}>
-        {messages.map(({ sender, text }, index) => (
-          <Fragment key={index}>
-            {sender === "bot" && (
-              <div className="tex-left">
-                <div className="bg-muted inline-block rounded-lg px-4 py-2">
-                  <p className="font-sm font-normal">{text}</p>
-                </div>
-              </div>
-            )}
-            {sender === "user" && (
-              <div className="text-right">
-                <div className=" bg-black inline-block rounded-lg px-4 py-2">
-                  <p className="font-sm font-normal text-white">{text}</p>
-                </div>
-              </div>
-            )}
-          </Fragment>
-        ))}
-        {isLoading && <>Loading</>}
-      </div>
+      <Suspense fallback={<>loading</>}>
+        <Messages />
+      </Suspense>
       <div className="flex-shrink-0 relative flex gap-2 items-end">
         <Textarea
           defaultValue={message}
