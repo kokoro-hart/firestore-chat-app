@@ -14,8 +14,7 @@ import {
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { BsSend } from "react-icons/bs";
 import OpenAI from "openai";
-import { roomAtom } from "../stores";
-import { useAtomValue } from "jotai/react";
+import { useParams } from "next/navigation";
 
 type Message = {
   text: string;
@@ -28,7 +27,7 @@ export const Chat = () => {
     apiKey: process.env.NEXT_PUBLIC_OPENAI_KEY,
     dangerouslyAllowBrowser: true,
   });
-  const { id: roomId } = useAtomValue(roomAtom);
+  const { roomId } = useParams();
   const [message, setMessage] = useState<string>();
   const [messages, setMessages] = useState<Message[]>([]);
   const { textAreaRef, handleChange } = useAutoResizeTextArea();
@@ -38,7 +37,7 @@ export const Chat = () => {
   useEffect(() => {
     if (roomId) {
       const fetchMessages = async () => {
-        const roomDocRef = doc(db, "rooms", roomId);
+        const roomDocRef = doc(db, "rooms", roomId.toString());
         const messagesCollectionRef = collection(roomDocRef, "messages");
 
         const q = query(messagesCollectionRef, orderBy("createdAt"));
@@ -76,7 +75,7 @@ export const Chat = () => {
       createdAt: serverTimestamp(),
     };
 
-    const roomDoc = doc(db, "rooms", roomId!);
+    const roomDoc = doc(db, "rooms", roomId.toString());
     const messageCollectionRef = collection(roomDoc, "messages");
     await addDoc(messageCollectionRef, messageData);
 

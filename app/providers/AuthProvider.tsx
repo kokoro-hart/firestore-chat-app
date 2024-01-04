@@ -8,7 +8,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import { app, auth } from "@/firebase";
+import { app } from "@/firebase";
 import { useRouter } from "next/navigation";
 import { getPath } from "../utils";
 import { FirebaseApp } from "firebase/app";
@@ -78,10 +78,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const { user, userId, status } = useSubscribeAuthStateChanged();
 
   useEffect(() => {
-    if (!user) {
+    if (!user && status !== "loading") {
       router.push(getPath.auth.login());
     }
-  }, [router, user]);
+  }, [router, user, status]);
 
   return (
     <AuthContext.Provider

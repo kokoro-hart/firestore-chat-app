@@ -1,32 +1,27 @@
 "use client";
-import { Button } from "@/app/components/ui";
+import { Button, ButtonLink } from "@/app/components/ui";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import React, { Suspense } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "@/firebase";
 import { useAuth } from "@/app/providers";
 import { useGetRooms } from "../api";
-import { roomAtom } from "../stores";
-import { useSetAtom } from "jotai/react";
+import { getPath } from "@/app/utils";
 
 const RoomList = () => {
-  const setRoom = useSetAtom(roomAtom);
   const { data: rooms } = useGetRooms();
+
   return (
     <ul>
       {rooms.map(({ id, name }) => (
         <li key={id}>
-          <Button
-            className="py-4 px-6 border-b border-border bg-transparent w-full h-full text-black hover:bg-gray-100"
-            onClick={() => {
-              setRoom((prev) => ({
-                ...prev,
-                id,
-              }));
-            }}
+          <ButtonLink
+            variant="ghost"
+            className="py-4 px-6 border-b border-border w-full h-full"
+            href={getPath.chat.room(id)}
           >
             {name}
-          </Button>
+          </ButtonLink>
         </li>
       ))}
     </ul>

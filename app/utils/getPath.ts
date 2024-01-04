@@ -4,5 +4,8 @@ export const getPath = {
     register: () => "/auth/register",
     login: () => "/auth/login",
   },
-  chat: () => "/chat",
+  chat: {
+    root: () => "/chat",
+    room: (roomId: string) => `/chat/${roomId}`,
+  },
 };
