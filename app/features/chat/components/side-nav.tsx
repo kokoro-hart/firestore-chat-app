@@ -2,8 +2,7 @@
 import { Button, ButtonLink } from "@/app/components/ui";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import React, { Suspense } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { auth, db } from "@/firebase";
+import { auth } from "@/firebase";
 import { useAuth } from "@/app/providers";
 import { useCreateRoom, useGetRooms } from "../api";
 import { getPath } from "@/app/utils";
@@ -29,7 +28,7 @@ const RoomList = () => {
 };
 
 export const SideNav = () => {
-  const { user, userId } = useAuth();
+  const { user } = useAuth();
   const { mutateAsync: createRoom } = useCreateRoom();
 
   const addNewRoom = async () => {

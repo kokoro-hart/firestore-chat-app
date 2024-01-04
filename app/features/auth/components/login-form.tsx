@@ -10,7 +10,7 @@ export const LoginForm = () => {
   const router = useRouter();
   const { toast } = useToast();
 
-  const handleSubmit = async (data: LoginRequest) => {
+  const handleLogin = async (data: LoginRequest) => {
     await signInWithEmailAndPassword(auth, data.email, data.password)
       .then(() => {
         router.push(getPath.chat.root());
@@ -31,7 +31,7 @@ export const LoginForm = () => {
   };
 
   return (
-    <Form<LoginRequest> id="register" onSubmit={handleSubmit} schema={userSchema}>
+    <Form<LoginRequest> id="register" onSubmit={handleLogin} schema={userSchema}>
       {({ control }) => (
         <div className="p-8 border-border rounded-xl border bg-card text-card-foreground shadow min-w-[403px]">
           <h1 className="mb-4 text-2xl text-gray-700 text-center font-bold">Login</h1>

@@ -10,7 +10,7 @@ export const RegisterForm = () => {
   const router = useRouter();
   const { toast } = useToast();
 
-  const handleSubmit = async (data: RegisterRequest) => {
+  const handleRegister = async (data: RegisterRequest) => {
     await createUserWithEmailAndPassword(auth, data.email, data.password)
       .then(() => {
         router.push(getPath.auth.login());
@@ -31,7 +31,7 @@ export const RegisterForm = () => {
   };
 
   return (
-    <Form<RegisterRequest> id="register" onSubmit={handleSubmit} schema={userSchema}>
+    <Form<RegisterRequest> id="register" onSubmit={handleRegister} schema={userSchema}>
       {({ control }) => (
         <div className="p-8 border-border rounded-xl border bg-card text-card-foreground shadow min-w-[403px]">
           <h1 className="mb-4 text-2xl text-gray-700 text-center font-bold">Create an account</h1>
