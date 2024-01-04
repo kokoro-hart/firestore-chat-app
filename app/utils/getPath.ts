@@ -4,4 +4,5 @@ export const getPath = {
     register: () => "/auth/register",
     login: () => "/auth/login",
   },
+  chat: () => "/chat",
 };

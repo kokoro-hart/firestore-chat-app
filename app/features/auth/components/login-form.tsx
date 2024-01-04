@@ -13,7 +13,7 @@ export const LoginForm = () => {
   const handleSubmit = async (data: LoginRequest) => {
     await signInWithEmailAndPassword(auth, data.email, data.password)
       .then(() => {
-        router.push(getPath.root());
+        router.push(getPath.chat());
       })
       .catch((error) => {
         if (error.code === "auth/invalid-credential") {
