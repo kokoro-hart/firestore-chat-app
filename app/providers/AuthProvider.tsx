@@ -1,64 +1,94 @@
 "use client";
-import { User, onAuthStateChanged } from "firebase/auth";
-import { PropsWithChildren, createContext, useContext, useEffect, useState } from "react";
-import { auth } from "@/firebase";
+import { User, getAuth, onAuthStateChanged } from "firebase/auth";
+import {
+  PropsWithChildren,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { app, auth } from "@/firebase";
 import { useRouter } from "next/navigation";
 import { getPath } from "../utils";
+import { FirebaseApp } from "firebase/app";
 
-type AuthContextType = {
-  user: User | null;
-  userId: string | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  selectedRoom: string | null;
-  setSelectedRoom: React.Dispatch<React.SetStateAction<string | null>>;
-  selectRoomName: string | null;
-  setSelectRoomName: React.Dispatch<React.SetStateAction<string | null>>;
+type AuthState = {
+  status: "loading" | "login" | "logout";
+  user: User | undefined;
+  userId: string | undefined;
 };
 
-const initialData = {
-  user: null,
-  userId: null,
-  setUser: () => {},
-  selectedRoom: null,
-  setSelectedRoom: () => {},
-  selectRoomName: null,
-  setSelectRoomName: () => {},
+const initialState: AuthState = {
+  status: "loading",
+  user: undefined,
+  userId: undefined,
 };
 
-const AuthContext = createContext<AuthContextType>(initialData);
+const AuthContext = createContext<AuthState>(initialState);
+
+const getStore = (app: FirebaseApp) => {
+  let state: AuthState = initialState;
+
+  return {
+    getSnapshot: () => state,
+    getServerSnapshot: () => initialState,
+    subscribe: (callback: () => void) => {
+      const auth = getAuth(app);
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          state = {
+            status: "login",
+            user: user,
+            userId: user.uid,
+          };
+        } else {
+          state = {
+            status: "logout",
+            user: undefined,
+            userId: undefined,
+          };
+        }
+        callback();
+      });
+
+      return () => {
+        unsubscribe();
+      };
+    },
+  };
+};
+
+export const useSubscribeAuthStateChanged = () => {
+  const [store] = useState(() => {
+    return getStore(app);
+  });
+
+  const state = useSyncExternalStore<AuthState>(
+    store.subscribe,
+    store.getSnapshot,
+    store.getServerSnapshot,
+  );
+
+  return state;
+};
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  const [user, setUser] = useState<AuthContextType["user"]>(null);
-  const [userId, setUserId] = useState<AuthContextType["userId"]>(null);
-  const [selectedRoom, setSelectedRoom] = useState<AuthContextType["selectedRoom"]>(null);
-  const [selectRoomName, setSelectRoomName] = useState<AuthContextType["selectRoomName"]>(null);
   const router = useRouter();
+  const { user, userId, status } = useSubscribeAuthStateChanged();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setUserId(user && user.uid);
-
-      if (!user) {
-        router.push(getPath.auth.login());
-      }
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [router]);
+    if (!user) {
+      router.push(getPath.auth.login());
+    }
+  }, [router, user]);
 
   return (
     <AuthContext.Provider
       value={{
         user,
         userId,
-        setUser,
-        selectedRoom,
-        setSelectedRoom,
-        selectRoomName,
-        setSelectRoomName,
+        status,
       }}
     >
       {children}

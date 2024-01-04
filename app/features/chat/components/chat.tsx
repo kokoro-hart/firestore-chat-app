@@ -1,6 +1,5 @@
 "use client";
 import { Button, Textarea, useAutoResizeTextArea } from "@/app/components/ui";
-import { useAuth } from "@/app/providers";
 import { db } from "@/firebase";
 import {
   Timestamp,
@@ -15,6 +14,8 @@ import {
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { BsSend } from "react-icons/bs";
 import OpenAI from "openai";
+import { roomAtom } from "../stores";
+import { useAtomValue } from "jotai/react";
 
 type Message = {
   text: string;
@@ -27,7 +28,7 @@ export const Chat = () => {
     apiKey: process.env.NEXT_PUBLIC_OPENAI_KEY,
     dangerouslyAllowBrowser: true,
   });
-  const { selectedRoom } = useAuth();
+  const { id: roomId } = useAtomValue(roomAtom);
   const [message, setMessage] = useState<string>();
   const [messages, setMessages] = useState<Message[]>([]);
   const { textAreaRef, handleChange } = useAutoResizeTextArea();
@@ -35,9 +36,9 @@ export const Chat = () => {
   const scrollDiv = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (selectedRoom) {
+    if (roomId) {
       const fetchMessages = async () => {
-        const roomDocRef = doc(db, "rooms", selectedRoom);
+        const roomDocRef = doc(db, "rooms", roomId);
         const messagesCollectionRef = collection(roomDocRef, "messages");
 
         const q = query(messagesCollectionRef, orderBy("createdAt"));
@@ -54,7 +55,7 @@ export const Chat = () => {
 
       fetchMessages();
     }
-  }, [selectedRoom]);
+  }, [roomId]);
 
   useEffect(() => {
     if (scrollDiv.current) {
@@ -75,7 +76,7 @@ export const Chat = () => {
       createdAt: serverTimestamp(),
     };
 
-    const roomDoc = doc(db, "rooms", selectedRoom!);
+    const roomDoc = doc(db, "rooms", roomId!);
     const messageCollectionRef = collection(roomDoc, "messages");
     await addDoc(messageCollectionRef, messageData);
 

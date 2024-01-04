@@ -1,56 +1,40 @@
 "use client";
 import { Button } from "@/app/components/ui";
 import { RiLogoutBoxLine } from "react-icons/ri";
-import React, { useEffect, useState } from "react";
-import {
-  Timestamp,
-  addDoc,
-  collection,
-  onSnapshot,
-  orderBy,
-  query,
-  serverTimestamp,
-  where,
-} from "firebase/firestore";
+import React, { Suspense } from "react";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "@/firebase";
 import { useAuth } from "@/app/providers";
+import { useGetRooms } from "../api";
+import { roomAtom } from "../stores";
+import { useSetAtom } from "jotai/react";
 
-type Room = {
-  id: string;
-  name: string;
-  createdAt: Timestamp;
+const RoomList = () => {
+  const setRoom = useSetAtom(roomAtom);
+  const { data: rooms } = useGetRooms();
+  return (
+    <ul>
+      {rooms.map(({ id, name }) => (
+        <li key={id}>
+          <Button
+            className="py-4 px-6 border-b border-border bg-transparent w-full h-full text-black hover:bg-gray-100"
+            onClick={() => {
+              setRoom((prev) => ({
+                ...prev,
+                id,
+              }));
+            }}
+          >
+            {name}
+          </Button>
+        </li>
+      ))}
+    </ul>
+  );
 };
 
 export const SideNav = () => {
-  const { user, userId, setSelectedRoom } = useAuth();
-  const [rooms, setRooms] = useState<Room[]>([]);
-
-  useEffect(() => {
-    if (user) {
-      const fetchRooms = async () => {
-        const roomCollection = collection(db, "rooms");
-        const baseQuery = query(
-          roomCollection,
-          where("userId", "==", userId),
-          orderBy("createdAt"),
-        );
-        const unsubscribe = onSnapshot(baseQuery, (snapshot) => {
-          const newRooms: Room[] = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            name: doc.data().name,
-            createdAt: doc.data().createdAt,
-          }));
-          setRooms(newRooms);
-        });
-
-        return () => {
-          unsubscribe();
-        };
-      };
-
-      fetchRooms();
-    }
-  }, [user, userId]);
+  const { user, userId } = useAuth();
 
   const addNewRoom = async () => {
     const roomName = prompt("ルーム名を入力してください。");
@@ -74,20 +58,9 @@ export const SideNav = () => {
         New Chat
       </Button>
       <div className="flex-grow">
-        <ul className="mt-4">
-          {rooms.map(({ id, name }) => (
-            <li key={id}>
-              <Button
-                className="py-4 px-6 border-b border-border bg-transparent w-full h-full text-black hover:bg-gray-100"
-                onClick={() => {
-                  setSelectedRoom(id);
-                }}
-              >
-                {name}
-              </Button>
-            </li>
-          ))}
-        </ul>
+        <Suspense fallback={<>loading</>}>
+          <RoomList />
+        </Suspense>
       </div>
       {user && <p className="p-4 text-md">{user.email}</p>}
       <Button
