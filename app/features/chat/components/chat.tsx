@@ -2,7 +2,7 @@
 import { Button, Form, Textarea, useAutoResizeTextArea } from "@/app/components/ui";
 import React, { Fragment, Suspense, useRef } from "react";
 import { BsSend } from "react-icons/bs";
-import { useCreateGtpMessage, useCreateMessage, useGetMessages } from "../api";
+import { useCreateGtpMessage, useCreateMessage, useGetMessages, useGetRoom } from "../api";
 import { z } from "zod";
 
 type MessageProps = {
@@ -70,9 +70,11 @@ export const Chat = () => {
     if (textAreaRef.current) textAreaRef.current.value = "";
   };
 
+  const room = useGetRoom();
+
   return (
     <div className="flex flex-col justify-between gap-4 h-full max-w-[780px] w-full m-auto">
-      <h1 className="text-2xl">Room1</h1>
+      <h1 className="text-2xl">{room?.name}</h1>
       <Suspense fallback={<>loading</>}>
         <Messages
           isCreatingUserMessage={isCreatingUserMessage}

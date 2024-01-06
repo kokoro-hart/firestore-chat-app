@@ -1,2 +1,2 @@
-export * from "./chat";
-export * from "./side-nav";
+export * from "./Chat";
+export * from "./Rooms";

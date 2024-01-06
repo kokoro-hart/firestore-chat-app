@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as React from "react";
 import { useForm, UseFormReturn, SubmitHandler, UseFormProps, FieldValues } from "react-hook-form";
 import { ZodType, ZodTypeDef } from "zod";
-import { RHFProvider } from "./form-utils";
+import { RHFProvider } from "./Utils";
 
 type FormProps<TFormValues extends FieldValues, Schema> = {
   onSubmit: SubmitHandler<TFormValues>;

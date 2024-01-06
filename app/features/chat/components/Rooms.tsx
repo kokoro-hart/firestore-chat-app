@@ -27,7 +27,7 @@ const RoomList = () => {
   );
 };
 
-export const SideNav = () => {
+export const Rooms = () => {
   const { user } = useAuth();
   const { mutateAsync: createRoom } = useCreateRoom();
 

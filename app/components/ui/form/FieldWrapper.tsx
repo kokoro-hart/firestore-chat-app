@@ -1,13 +1,6 @@
 import { ComponentProps, PropsWithChildren, ReactNode } from "react";
 
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "./form-utils";
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./Utils";
 import { FieldValues } from "react-hook-form";
 
 type FieldWrapperProps<TFormValues extends FieldValues> = Omit<
