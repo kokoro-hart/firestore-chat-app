@@ -7,5 +7,5 @@ export const userSchema = z.object({
   }),
 });
 
-export type LoginRequest = z.infer<typeof userSchema>;
-export type RegisterRequest = z.infer<typeof userSchema>;
+export type SignInRequest = z.infer<typeof userSchema>;
+export type SignUpRequest = z.infer<typeof userSchema>;

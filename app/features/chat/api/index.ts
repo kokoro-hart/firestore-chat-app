@@ -1,7 +1,6 @@
 import { useToast } from "@/app/components/ui";
-import { queryClient } from "@/app/libs";
+import { queryClient, firestore, openai } from "@/app/libs";
 import { useAuth } from "@/app/providers";
-import { db } from "@/firebase";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import {
   addDoc,
@@ -14,7 +13,6 @@ import {
   where,
 } from "firebase/firestore";
 import { useParams } from "next/navigation";
-import OpenAI from "openai";
 import {
   CreateRoomRequest,
   GetMessagesResponse,
@@ -24,7 +22,7 @@ import {
 } from "../types";
 
 const getRooms = async (userId: string): Promise<GetRoomsResponse> => {
-  const roomCollection = collection(db, "rooms");
+  const roomCollection = collection(firestore, "rooms");
   const baseQuery = query(roomCollection, where("userId", "==", userId), orderBy("createdAt"));
   const snapshot = await getDocs(baseQuery);
 
@@ -51,7 +49,7 @@ export const useGetRoom = () => {
 };
 
 const createRoom = async ({ userId, name }: CreateRoomRequest) => {
-  const newRoomRef = collection(db, "rooms");
+  const newRoomRef = collection(firestore, "rooms");
   await addDoc(newRoomRef, {
     name,
     userId,
@@ -83,7 +81,7 @@ export const useCreateRoom = () => {
 };
 
 const getMessages = async (roomId: string): Promise<GetMessagesResponse> => {
-  const roomDocRef = doc(db, "rooms", roomId);
+  const roomDocRef = doc(firestore, "rooms", roomId);
   const messagesCollectionRef = collection(roomDocRef, "messages");
   const q = query(messagesCollectionRef, orderBy("createdAt"));
   const snapshot = await getDocs(q);
@@ -105,7 +103,7 @@ const createMessage = async ({ text, roomId }: CreateMessageRequest) => {
     createdAt: serverTimestamp(),
   };
 
-  const roomDoc = doc(db, "rooms", roomId.toString());
+  const roomDoc = doc(firestore, "rooms", roomId.toString());
   const messageCollectionRef = collection(roomDoc, "messages");
   await addDoc(messageCollectionRef, messageData);
 };
@@ -134,15 +132,11 @@ export const useCreateMessage = () => {
 };
 
 const createGtpMessage = async ({ text, roomId }: CreateMessageRequest) => {
-  const openai = new OpenAI({
-    apiKey: process.env.NEXT_PUBLIC_OPENAI_KEY,
-    dangerouslyAllowBrowser: true,
-  });
   const gpt3Response = await openai.chat.completions.create({
     messages: [{ role: "user", content: text }],
     model: "gpt-3.5-turbo",
   });
-  const roomDoc = doc(db, "rooms", roomId.toString());
+  const roomDoc = doc(firestore, "rooms", roomId.toString());
   const messageCollectionRef = collection(roomDoc, "messages");
   const botResponse = gpt3Response.choices[0].message.content;
   await addDoc(messageCollectionRef, {

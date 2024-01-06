@@ -2,7 +2,7 @@
 import { Button, ButtonLink } from "@/app/components/ui";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import React, { Suspense } from "react";
-import { auth } from "@/firebase";
+import { firebaseAuth } from "@/app/libs";
 import { useAuth } from "@/app/providers";
 import { useCreateRoom, useGetRooms } from "../api";
 import { getPath } from "@/app/utils";
@@ -39,7 +39,7 @@ export const Rooms = () => {
   };
 
   const handleLogout = () => {
-    auth.signOut();
+    firebaseAuth.signOut();
   };
 
   return (

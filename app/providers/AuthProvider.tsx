@@ -8,7 +8,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import { app } from "@/firebase";
+import { firebaseApp } from "@/app/libs";
 import { useRouter } from "next/navigation";
 import { getPath } from "../utils";
 import { FirebaseApp } from "firebase/app";
@@ -61,7 +61,7 @@ const getStore = (app: FirebaseApp) => {
 
 export const useSubscribeAuthStateChanged = () => {
   const [store] = useState(() => {
-    return getStore(app);
+    return getStore(firebaseApp);
   });
 
   const state = useSyncExternalStore<AuthState>(

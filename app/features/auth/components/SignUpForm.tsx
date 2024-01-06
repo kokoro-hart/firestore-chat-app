@@ -1,37 +1,13 @@
 "use client";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/firebase";
-import { useRouter } from "next/navigation";
-import { Button, FieldWrapper, Form, Input, Link, useToast } from "@/app/components/ui";
+import { Button, FieldWrapper, Form, Input, Link } from "@/app/components/ui";
 import { getPath } from "@/app/utils";
-import { RegisterRequest, userSchema } from "../types";
+import { SignUpRequest, userSchema } from "../types";
+import { useSignUp } from "../api";
 
-export const RegisterForm = () => {
-  const router = useRouter();
-  const { toast } = useToast();
-
-  const handleRegister = async (data: RegisterRequest) => {
-    await createUserWithEmailAndPassword(auth, data.email, data.password)
-      .then(() => {
-        router.push(getPath.auth.login());
-      })
-      .catch((error) => {
-        if (error.code === "auth/email-already-in-use") {
-          toast({
-            variant: "destructive",
-            title: "This email address is already in use.",
-          });
-        } else {
-          toast({
-            variant: "destructive",
-            title: error.message,
-          });
-        }
-      });
-  };
-
+export const SignUpForm = () => {
+  const { signUp } = useSignUp();
   return (
-    <Form<RegisterRequest> id="register" onSubmit={handleRegister} schema={userSchema}>
+    <Form<SignUpRequest> id="register" onSubmit={signUp} schema={userSchema}>
       {({ control }) => (
         <div className="p-8 border-border rounded-xl border bg-card text-card-foreground shadow min-w-[403px]">
           <h1 className="mb-4 text-2xl text-gray-700 text-center font-bold">Create an account</h1>
