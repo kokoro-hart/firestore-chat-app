@@ -96,10 +96,11 @@ export const Chat = () => {
             </Button>
           </div>
           <Form<MessageRequest, typeof messageSchema>
+            id="chat"
             onSubmit={handleSubmit}
             schema={messageSchema}
           >
-            {({ register }) => (
+            {({ register, setValue }) => (
               <div className="flex-shrink-0 relative flex gap-2 items-end">
                 <Textarea
                   rows={1}
@@ -107,6 +108,7 @@ export const Chat = () => {
                   {...register("text", {
                     onChange: (e) => {
                       handleChange(e);
+                      setValue("text", e.target.value);
                     },
                   })}
                   ref={textAreaRef}
@@ -127,7 +129,7 @@ export const Chat = () => {
                     }
                   }}
                 />
-                <Button type="submit" aria-label="send a message">
+                <Button type="submit" id="chat" aria-label="send a message">
                   <BsSend />
                 </Button>
               </div>

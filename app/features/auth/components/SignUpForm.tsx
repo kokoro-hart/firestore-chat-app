@@ -5,9 +5,9 @@ import { SignUpRequest, userSchema } from "../types";
 import { useSignUp } from "../api";
 
 export const SignUpForm = () => {
-  const { signUp } = useSignUp();
+  const { mutateAsync: signUp, isPending: isPendingSignUp } = useSignUp();
   return (
-    <Form<SignUpRequest> id="register" onSubmit={signUp} schema={userSchema}>
+    <Form<SignUpRequest> id="register" onSubmit={(data) => signUp(data)} schema={userSchema}>
       {({ control }) => (
         <div className="p-8 border-border rounded-xl border bg-card text-card-foreground shadow min-w-[403px]">
           <h1 className="mb-4 text-2xl text-gray-700 text-center font-bold">Create an account</h1>
@@ -19,7 +19,7 @@ export const SignUpForm = () => {
               {({ field }) => <Input placeholder="password" {...field} />}
             </FieldWrapper>
             <div className="flex justify-center">
-              <Button id="register" type="submit">
+              <Button id="register" type="submit" isLoading={isPendingSignUp}>
                 Create account
               </Button>
             </div>

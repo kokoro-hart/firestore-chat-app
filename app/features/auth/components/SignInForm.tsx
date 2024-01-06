@@ -5,9 +5,9 @@ import { SignInRequest, userSchema } from "../types";
 import { useSignIn } from "../api";
 
 export const SignInForm = () => {
-  const { signIn } = useSignIn();
+  const { mutateAsync: signIn, isPending: isPendingSignIn } = useSignIn();
   return (
-    <Form<SignInRequest> id="login" onSubmit={signIn} schema={userSchema}>
+    <Form<SignInRequest> id="login" onSubmit={(data) => signIn(data)} schema={userSchema}>
       {({ control }) => (
         <div className="p-8 border-border rounded-xl border bg-card text-card-foreground shadow min-w-[403px]">
           <h1 className="mb-4 text-2xl text-gray-700 text-center font-bold">Login</h1>
@@ -19,7 +19,7 @@ export const SignInForm = () => {
               {({ field }) => <Input placeholder="password" {...field} />}
             </FieldWrapper>
             <div className="flex justify-center">
-              <Button id="login" type="submit">
+              <Button id="login" type="submit" isLoading={isPendingSignIn}>
                 Login
               </Button>
             </div>
