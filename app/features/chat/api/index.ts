@@ -5,6 +5,7 @@ import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDocs,
   orderBy,
@@ -19,6 +20,7 @@ import {
   GetRoomsResponse,
   Message,
   CreateMessageRequest,
+  DeleteRoomRequest,
 } from "../types";
 
 const getRooms = async (userId: string): Promise<GetRoomsResponse> => {
@@ -75,6 +77,29 @@ export const useCreateRoom = () => {
       toast({
         variant: "destructive",
         title: "Failed to create room.",
+      });
+    },
+  });
+};
+
+const deleteRoom = async (roomId: string) => {
+  await deleteDoc(doc(firestore, "rooms", roomId));
+};
+
+export const useDeleteRoom = () => {
+  const { userId } = useAuth();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationKey: ["rooms", { userId }],
+    mutationFn: ({ roomId }: DeleteRoomRequest) => deleteRoom(roomId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["rooms", { userId }] });
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Failed to delete room.",
       });
     },
   });

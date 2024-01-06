@@ -13,6 +13,10 @@ export type CreateRoomRequest = {
   name: string;
 };
 
+export type DeleteRoomRequest = {
+  roomId: string;
+};
+
 export type Message = {
   text: string;
   sender: "user" | "bot";
