@@ -1,3 +1,4 @@
+import { AuthError } from "firebase/auth";
 import { z } from "zod";
 
 export const userSchema = z.object({
@@ -6,6 +7,11 @@ export const userSchema = z.object({
     message: "Please enter a password with at least 6 characters",
   }),
 });
-
 export type SignInRequest = z.infer<typeof userSchema>;
 export type SignUpRequest = z.infer<typeof userSchema>;
+
+export type BaseParams = {
+  onError?: (e: AuthError) => void;
+};
+export type UseSignInParams = BaseParams;
+export type UseSignUpParams = BaseParams;

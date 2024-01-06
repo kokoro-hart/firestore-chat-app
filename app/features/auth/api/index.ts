@@ -4,20 +4,22 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { SignInRequest, SignUpRequest } from "..";
+import { SignInRequest, SignUpRequest, UseSignInParams, UseSignUpParams } from "..";
 import { getPath } from "@/app/utils";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/app/components/ui";
 import { useMutation } from "@tanstack/react-query";
 
-export const useSignIn = () => {
+const signIn = async (data: SignInRequest) => {
+  await signInWithEmailAndPassword(firebaseAuth, data.email, data.password);
+};
+
+export const useSignIn = ({ onError }: UseSignInParams = {}) => {
   const router = useRouter();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (data: SignInRequest) => {
-      await signInWithEmailAndPassword(firebaseAuth, data.email, data.password);
-    },
+    mutationFn: signIn,
     onSuccess: () => {
       router.push(getPath.chat.root());
     },
@@ -33,18 +35,21 @@ export const useSignIn = () => {
           title: error.message,
         });
       }
+      if (onError) onError(error);
     },
   });
 };
 
-export const useSignUp = () => {
+const signUp = async (data: SignUpRequest) => {
+  await createUserWithEmailAndPassword(firebaseAuth, data.email, data.password);
+};
+
+export const useSignUp = ({ onError }: UseSignUpParams = {}) => {
   const router = useRouter();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (data: SignUpRequest) => {
-      await createUserWithEmailAndPassword(firebaseAuth, data.email, data.password);
-    },
+    mutationFn: signUp,
     onSuccess: () => {
       router.push(getPath.auth.login());
     },
@@ -60,6 +65,7 @@ export const useSignUp = () => {
           title: error.message,
         });
       }
+      if (onError) onError(error);
     },
   });
 };
