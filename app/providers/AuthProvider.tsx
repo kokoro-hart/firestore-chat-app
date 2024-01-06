@@ -14,18 +14,14 @@ import { getPath } from "../utils";
 import { FirebaseApp } from "firebase/app";
 
 type AuthState = {
-  status: "loading" | "login" | "logout";
-  user: User | undefined;
-  userId: string | undefined;
+  status: "idle" | "login" | "logout";
+  user?: User;
+  userId?: string;
 };
 
 const initialState: AuthState = {
-  status: "loading",
-  user: undefined,
-  userId: undefined,
+  status: "idle",
 };
-
-const AuthContext = createContext<AuthState>(initialState);
 
 const getStore = (app: FirebaseApp) => {
   let state: AuthState = initialState;
@@ -45,8 +41,6 @@ const getStore = (app: FirebaseApp) => {
         } else {
           state = {
             status: "logout",
-            user: undefined,
-            userId: undefined,
           };
         }
         callback();
@@ -73,12 +67,14 @@ export const useSubscribeAuthStateChanged = () => {
   return state;
 };
 
-export function AuthProvider({ children }: PropsWithChildren) {
+const AuthContext = createContext<AuthState>(initialState);
+
+export const AuthProvider = ({ children }: PropsWithChildren) => {
   const router = useRouter();
   const { user, userId, status } = useSubscribeAuthStateChanged();
 
   useEffect(() => {
-    if (!user && status !== "loading") {
+    if (!user && status !== "idle") {
       router.push(getPath.auth.login());
     }
   }, [router, user, status]);
@@ -94,8 +90,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
+export const useAuth = () => {
   return useContext(AuthContext);
-}
+};
