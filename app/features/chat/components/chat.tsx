@@ -24,30 +24,28 @@ const Messages = ({ isCreatingUserMessage, isCreatingGptMessage }: MessageProps)
   };
   return (
     <div className="flex-grow overflow-y-auto font-bold pr-4" ref={scrollDiv}>
-      <div className="mb-4">
-        {messages.map(({ sender, text }, index) => (
-          <Fragment key={index}>
-            {sender === "bot" && (
-              <div className="tex-left">
-                <div className="bg-muted inline-block rounded-lg px-4 py-2">
-                  <p className="font-sm font-normal">{text}</p>
-                </div>
+      {messages.map(({ sender, text }, index) => (
+        <Fragment key={index}>
+          {sender === "bot" && (
+            <div className="tex-left mb-4">
+              <div className="bg-muted inline-block rounded-lg px-4 py-2">
+                <p className="font-sm font-normal">{text}</p>
               </div>
-            )}
-            {sender === "user" && (
-              <div className="text-right">
-                <div className=" bg-black inline-block rounded-lg px-4 py-2">
-                  <p className="font-sm font-normal text-white">{text}</p>
-                </div>
+            </div>
+          )}
+          {sender === "user" && (
+            <div className="text-right mb-4">
+              <div className=" bg-primary inline-block rounded-lg px-4 py-2">
+                <p className="font-sm font-normal text-white">{text}</p>
               </div>
-            )}
-          </Fragment>
-        ))}
-      </div>
+            </div>
+          )}
+        </Fragment>
+      ))}
       {isCreatingGptMessage && <p>loading</p>}
       {isCreatingUserMessage && <p className="text-right">loading</p>}
-      <div className="sticky bottom-0 left-0">
-        <Button onClick={handleScrollDown}>handleScrollDown</Button>
+      <div className="sticky bottom-0 left-0 opacity-60">
+        <Button onClick={handleScrollDown}>↓</Button>
       </div>
     </div>
   );
