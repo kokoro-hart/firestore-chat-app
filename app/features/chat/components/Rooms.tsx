@@ -21,7 +21,7 @@ const RoomList = () => {
       {rooms.map(({ id, name }) => (
         <li
           key={id}
-          className={`flex items-center justify-between hover:bg-muted border-b border-border ${
+          className={`flex items-center justify-between hover:bg-muted rounded-sm ${
             roomId === id && "bg-muted"
           }`}
         >
