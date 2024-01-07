@@ -12,6 +12,7 @@ import { BsSend } from "react-icons/bs";
 import { useCreateGtpMessage, useCreateMessage, useGetMessages, useGetRoom } from "../api";
 import { z } from "zod";
 import { SENDER_TYPE } from "..";
+import { useScroll } from "@/app/hooks";
 
 type MessageProps = {
   isCreatingUserMessage: boolean;
@@ -62,40 +63,30 @@ const messageSchema = z.object({
 export type MessageRequest = z.infer<typeof messageSchema>;
 
 export const Chat = () => {
-  const { textAreaRef, handleChange } = useAutoResizeTextArea();
+  const { textAreaRef, handleChange, reset: resetTextArea } = useAutoResizeTextArea();
   const { mutateAsync: createMessage, isPending: isCreatingUserMessage } = useCreateMessage();
   const { mutateAsync: createGptMessage, isPending: isCreatingGptMessage } = useCreateGtpMessage();
-  const scrollDiv = useRef<HTMLDivElement>(null);
-  const room = useGetRoom();
-
-  const handleScrollDown = useCallback(() => {
-    if (scrollDiv.current) {
-      const element = scrollDiv.current;
-      element.scrollTo({
-        top: element.scrollHeight,
-        behavior: "smooth",
-      });
-    }
-  }, [scrollDiv]);
+  const { ref: scrollRef, scrollDown, moveDown } = useScroll();
+  const { name: roomName } = useGetRoom();
 
   useEffect(() => {
-    handleScrollDown();
-  }, [handleScrollDown]);
+    moveDown();
+  }, [moveDown]);
 
   const handleSubmit = async (data: MessageRequest) => {
-    if (textAreaRef.current) textAreaRef.current.value = "";
+    resetTextArea();
     await createMessage(data);
-    handleScrollDown();
+    scrollDown();
     await createGptMessage(data);
     setTimeout(() => {
-      handleScrollDown();
+      scrollDown();
     }, 500);
   };
 
   return (
     <div className="flex flex-col justify-between h-full pb-2">
-      <h1 className="text-2xl">{room?.name}</h1>
-      <div className="flex-grow overflow-y-auto font-bold pb-10" ref={scrollDiv}>
+      <h1 className="text-2xl">{roomName}</h1>
+      <div className="flex-grow overflow-y-auto font-bold pb-10" ref={scrollRef}>
         <div className="max-w-[780px] w-full h-full m-auto">
           <Suspense fallback={<PageSpinner />}>
             <div className="pb-14">
@@ -113,7 +104,7 @@ export const Chat = () => {
             <Button
               size="icon"
               className="rounded-full"
-              onClick={handleScrollDown}
+              onClick={scrollDown}
               aria-label="scroll down"
             >
               ↓

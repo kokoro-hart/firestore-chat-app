@@ -53,9 +53,17 @@ const useAutoResizeTextArea = () => {
     setValue(event?.target?.value ?? "");
   }, []);
 
+  const reset = useCallback(() => {
+    if (textAreaRef.current) {
+      textAreaRef.current.value = "";
+    }
+    setValue("");
+  }, []);
+
   return {
     textAreaRef,
     handleChange,
+    reset,
   };
 };
 

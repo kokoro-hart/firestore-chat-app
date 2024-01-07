@@ -50,7 +50,7 @@ export const useGetRoom = () => {
   const { roomId } = useParams();
   const { data: rooms } = useGetRooms();
   const room = rooms.find(({ id }) => id === roomId);
-  return room;
+  return room ?? { name: "", id: "", createdAt: "" };
 };
 
 const createRoom = async ({ userId, name }: CreateRoomRequest) => {
