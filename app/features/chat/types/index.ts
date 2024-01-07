@@ -1,5 +1,12 @@
 import { Timestamp } from "firebase/firestore";
 
+export const SENDER_TYPE = {
+  user: "user",
+  bot: "bot",
+} as const;
+
+export type SenderType = (typeof SENDER_TYPE)[keyof typeof SENDER_TYPE];
+
 export type Room = {
   id: string;
   name: string;
@@ -24,7 +31,7 @@ export type DeleteRoomRequest = {
 
 export type Message = {
   text: string;
-  sender: "user" | "bot";
+  sender: SenderType;
   createdAt: Timestamp;
 };
 

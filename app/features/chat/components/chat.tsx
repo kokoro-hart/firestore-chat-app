@@ -1,9 +1,17 @@
 "use client";
-import { Button, Form, Textarea, useAutoResizeTextArea } from "@/app/components/ui";
-import React, { Fragment, Suspense, useRef } from "react";
+import {
+  Button,
+  DotsBounce,
+  Form,
+  PageSpinner,
+  Textarea,
+  useAutoResizeTextArea,
+} from "@/app/components/ui";
+import React, { Fragment, Suspense, useCallback, useEffect, useRef } from "react";
 import { BsSend } from "react-icons/bs";
 import { useCreateGtpMessage, useCreateMessage, useGetMessages, useGetRoom } from "../api";
 import { z } from "zod";
+import { SENDER_TYPE } from "..";
 
 type MessageProps = {
   isCreatingUserMessage: boolean;
@@ -12,28 +20,38 @@ type MessageProps = {
 const Messages = ({ isCreatingUserMessage, isCreatingGptMessage }: MessageProps) => {
   const { data: messages } = useGetMessages();
   return (
-    <>
+    <div className="flex flex-col gap-4">
       {messages.map(({ sender, text }, index) => (
         <Fragment key={index}>
-          {sender === "bot" && (
-            <div className="tex-left mb-4">
-              <div className="bg-muted inline-block rounded-lg px-4 py-2">
-                <p className="font-sm font-normal">{text}</p>
+          {sender === SENDER_TYPE.user && (
+            <div className="text-right">
+              <div className="bg-primary inline-block rounded-lg px-4 py-2">
+                <p className="font-sm font-normal text-white whitespace-pre-wrap text-left">
+                  {text}
+                </p>
               </div>
             </div>
           )}
-          {sender === "user" && (
-            <div className="text-right mb-4">
-              <div className=" bg-primary inline-block rounded-lg px-4 py-2">
-                <p className="font-sm font-normal text-white">{text}</p>
+          {sender === SENDER_TYPE.bot && (
+            <div className="tex-left">
+              <div className="bg-muted inline-block rounded-lg px-4 py-2">
+                <p className="font-sm font-normal whitespace-pre-wrap">{text}</p>
               </div>
             </div>
           )}
         </Fragment>
       ))}
-      {isCreatingGptMessage && <p>loading</p>}
-      {isCreatingUserMessage && <p className="text-right">loading</p>}
-    </>
+      {isCreatingUserMessage && (
+        <div className="text-right">
+          <DotsBounce />
+        </div>
+      )}
+      {isCreatingGptMessage && (
+        <div className="text-left">
+          <DotsBounce />
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -50,7 +68,7 @@ export const Chat = () => {
   const scrollDiv = useRef<HTMLDivElement>(null);
   const room = useGetRoom();
 
-  const handleScrollDown = () => {
+  const handleScrollDown = useCallback(() => {
     if (scrollDiv.current) {
       const element = scrollDiv.current;
       element.scrollTo({
@@ -58,7 +76,11 @@ export const Chat = () => {
         behavior: "smooth",
       });
     }
-  };
+  }, [scrollDiv]);
+
+  useEffect(() => {
+    handleScrollDown();
+  }, [handleScrollDown]);
 
   const handleSubmit = async (data: MessageRequest) => {
     if (textAreaRef.current) textAreaRef.current.value = "";
@@ -74,12 +96,14 @@ export const Chat = () => {
     <div className="flex flex-col justify-between h-full pb-2">
       <h1 className="text-2xl">{room?.name}</h1>
       <div className="flex-grow overflow-y-auto font-bold pb-10" ref={scrollDiv}>
-        <div className="max-w-[780px] w-full m-auto">
-          <Suspense fallback={<>loading</>}>
-            <Messages
-              isCreatingUserMessage={isCreatingUserMessage}
-              isCreatingGptMessage={isCreatingGptMessage}
-            />
+        <div className="max-w-[780px] w-full h-full m-auto">
+          <Suspense fallback={<PageSpinner />}>
+            <div className="pb-14">
+              <Messages
+                isCreatingUserMessage={isCreatingUserMessage}
+                isCreatingGptMessage={isCreatingGptMessage}
+              />
+            </div>
           </Suspense>
         </div>
       </div>

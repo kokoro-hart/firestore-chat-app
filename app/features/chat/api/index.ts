@@ -23,6 +23,7 @@ import {
   CreateMessageRequest,
   DeleteRoomRequest,
   UpdateRoomRequest,
+  SENDER_TYPE,
 } from "../types";
 
 const getRooms = async (userId: string): Promise<GetRoomsResponse> => {
@@ -150,7 +151,7 @@ export const useGetMessages = () => {
 const createMessage = async ({ text, roomId }: CreateMessageRequest) => {
   const messageData = {
     text,
-    sender: "user",
+    sender: SENDER_TYPE.user,
     createdAt: serverTimestamp(),
   };
 
@@ -192,7 +193,7 @@ const createGtpMessage = async ({ text, roomId }: CreateMessageRequest) => {
   const botResponse = gpt3Response.choices[0].message.content;
   await addDoc(messageCollectionRef, {
     text: botResponse,
-    sender: "bot",
+    sender: SENDER_TYPE.bot,
     createdAt: serverTimestamp(),
   });
 };
