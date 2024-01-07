@@ -47,7 +47,7 @@ const RoomItem = ({ id, name }: Room) => {
   return (
     <div
       key={id}
-      className={`flex items-center gap-2 p-2 justify-between hover:bg-muted rounded-sm ${
+      className={`group flex items-center gap-2 justify-between hover:bg-muted rounded-md ${
         roomId === id && "bg-muted"
       }`}
     >
@@ -70,7 +70,7 @@ const RoomItem = ({ id, name }: Room) => {
                   <Input
                     {...field}
                     type="text"
-                    className="h-11"
+                    className="h-[52px]"
                     autoFocus
                     disabled={isPendingUpdate}
                     onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -99,13 +99,13 @@ const RoomItem = ({ id, name }: Room) => {
       ) : (
         <ButtonLink
           variant="ghost"
-          className={`py-3 px-6 rounded-none w-full h-full transition-none`}
+          className={`py-4 px-6 w-full h-full transition-none block rounded-md`}
           href={getPath.chat.room(id)}
         >
           {name}
         </ButtonLink>
       )}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 py-1">
         <Button
           size="icon"
           aria-label="edit"
