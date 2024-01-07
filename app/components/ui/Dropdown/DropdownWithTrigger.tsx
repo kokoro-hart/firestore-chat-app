@@ -19,7 +19,11 @@ export const DropdownWithTrigger = ({ triggerButton, title, list }: DropdownWith
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>{triggerButton}</DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent
+        onCloseAutoFocus={(e) => {
+          e.preventDefault();
+        }}
+      >
         {title && (
           <>
             <DropdownMenuLabel>{title}</DropdownMenuLabel>

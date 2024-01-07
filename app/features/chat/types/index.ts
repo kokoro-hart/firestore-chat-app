@@ -13,6 +13,11 @@ export type CreateRoomRequest = {
   name: string;
 };
 
+export type UpdateRoomRequest = {
+  roomId: string;
+  name: string;
+};
+
 export type DeleteRoomRequest = {
   roomId: string;
 };

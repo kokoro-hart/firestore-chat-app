@@ -47,15 +47,15 @@ export const DialogWithTrigger = ({
           onClose,
         })}
         {hasFooter && (
-          <DialogFooter className="sm:justify-start">
-            {confirmProps && (
-              <DialogClose asChild>
-                <Button {...confirmProps} />
-              </DialogClose>
-            )}
+          <DialogFooter className="sm:justify-end">
             {cancelProps && (
               <DialogClose asChild>
                 <Button {...cancelProps} />
+              </DialogClose>
+            )}
+            {confirmProps && (
+              <DialogClose asChild>
+                <Button {...confirmProps} />
               </DialogClose>
             )}
           </DialogFooter>

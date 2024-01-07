@@ -6,7 +6,7 @@ export default function ChatLayout({ children }: PropsWithChildren) {
     <div className="h-screen flex flex-col items-center justify-center">
       <div className="h-full flex w-full">
         <div
-          className="w-1/5 h-full border-r overflow-y-auto border-border p-4"
+          className="w-1/5 h-full border-r overflow-y-auto border-border"
           style={{ overscrollBehavior: "none" }}
         >
           <Rooms />

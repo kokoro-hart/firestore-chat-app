@@ -11,6 +11,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { useParams } from "next/navigation";
@@ -21,6 +22,7 @@ import {
   Message,
   CreateMessageRequest,
   DeleteRoomRequest,
+  UpdateRoomRequest,
 } from "../types";
 
 const getRooms = async (userId: string): Promise<GetRoomsResponse> => {
@@ -77,6 +79,30 @@ export const useCreateRoom = () => {
       toast({
         variant: "destructive",
         title: "Failed to create room.",
+      });
+    },
+  });
+};
+
+const updateRoom = async ({ roomId, name }: UpdateRoomRequest) => {
+  const newRoomRef = doc(firestore, "rooms", roomId);
+  await updateDoc(newRoomRef, { name });
+};
+
+export const useUpdateRoom = () => {
+  const { userId } = useAuth();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationKey: ["rooms", { userId }],
+    mutationFn: updateRoom,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["rooms", { userId }] });
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Failed to update room.",
       });
     },
   });
