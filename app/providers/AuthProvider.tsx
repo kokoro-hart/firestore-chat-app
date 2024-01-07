@@ -1,5 +1,7 @@
 "use client";
+import { FirebaseApp } from "firebase/app";
 import { User, getAuth, onAuthStateChanged } from "firebase/auth";
+import { useRouter } from "next/navigation";
 import {
   PropsWithChildren,
   createContext,
@@ -8,10 +10,10 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+
 import { firebaseApp } from "@/app/libs";
-import { useRouter } from "next/navigation";
+
 import { getPath } from "../utils";
-import { FirebaseApp } from "firebase/app";
 
 type AuthState = {
   status: "idle" | "login" | "logout";

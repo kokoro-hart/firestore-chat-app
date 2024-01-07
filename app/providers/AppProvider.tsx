@@ -1,9 +1,11 @@
 "use client";
-import { PropsWithChildren, Suspense } from "react";
+import { PropsWithChildren } from "react";
+
+import { Toaster } from "../components/ui";
 
 import { QueryProvider } from "./QueryProvider";
+
 import { AuthProvider } from ".";
-import { Toaster } from "../components/ui";
 
 export const AppProvider = ({ children }: PropsWithChildren) => {
   return (

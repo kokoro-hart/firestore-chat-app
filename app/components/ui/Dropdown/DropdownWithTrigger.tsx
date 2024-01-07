@@ -1,3 +1,6 @@
+import { DropdownMenuGroup } from "@radix-ui/react-dropdown-menu";
+import { ReactNode } from "react";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,8 +9,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/app/components/ui";
-import { DropdownMenuGroup } from "@radix-ui/react-dropdown-menu";
-import { ReactNode } from "react";
 
 type DropdownWithTriggerProps = {
   triggerButton: ReactNode;

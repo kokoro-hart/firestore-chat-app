@@ -1,8 +1,9 @@
 import "./globals.css";
+import { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google";
 
 import { cn } from "@/app/libs";
-import { Metadata } from "next";
+
 import { AppProvider } from "./providers";
 
 export const fontSans = FontSans({

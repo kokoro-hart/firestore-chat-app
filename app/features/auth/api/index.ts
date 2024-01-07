@@ -1,14 +1,16 @@
-import { firebaseAuth } from "@/app/libs";
+import { useMutation } from "@tanstack/react-query";
 import {
   AuthError,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { SignInRequest, SignUpRequest, UseSignInParams, UseSignUpParams } from "..";
-import { getPath } from "@/app/utils";
 import { useRouter } from "next/navigation";
+
 import { useToast } from "@/app/components/ui";
-import { useMutation } from "@tanstack/react-query";
+import { firebaseAuth } from "@/app/libs";
+import { getPath } from "@/app/utils";
+
+import { SignInRequest, SignUpRequest, UseSignInParams, UseSignUpParams } from "..";
 
 const signIn = async (data: SignInRequest) => {
   await signInWithEmailAndPassword(firebaseAuth, data.email, data.password);

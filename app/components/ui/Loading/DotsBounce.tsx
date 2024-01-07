@@ -14,16 +14,16 @@ export const DotsBounce = ({ theme = "primary" }: DotsProps) => {
     secondary: "bg-primary",
   }[theme];
   return (
-    <div className={`inline-block rounded-lg px-4 pt-3 pb-1 ${wrapStyles}`}>
-      <div className="inline-flex gap-2 justify-center items-center dark:invert">
+    <div className={`inline-block rounded-lg px-4 pb-1 pt-3 ${wrapStyles}`}>
+      <div className="inline-flex items-center justify-center gap-2 dark:invert">
         <span className="sr-only">Loading...</span>
         <div
-          className={`h-[14px] w-[14px] rounded-full animate-bounce [animation-delay:-0.3s] ${circleStyles}`}
-        ></div>
+          className={`h-[14px] w-[14px] animate-bounce rounded-full [animation-delay:-0.3s] ${circleStyles}`}
+        />
         <div
-          className={`h-[14px] w-[14px] rounded-full animate-bounce [animation-delay:-0.15s] ${circleStyles}`}
-        ></div>
-        <div className={`h-[14px] w-[14px] rounded-full animate-bounce ${circleStyles}`}></div>
+          className={`h-[14px] w-[14px] animate-bounce rounded-full [animation-delay:-0.15s] ${circleStyles}`}
+        />
+        <div className={`h-[14px] w-[14px] animate-bounce rounded-full ${circleStyles}`} />
       </div>
     </div>
   );

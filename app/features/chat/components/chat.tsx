@@ -1,4 +1,8 @@
 "use client";
+import React, { Fragment, Suspense, useEffect } from "react";
+import { BsSend } from "react-icons/bs";
+import { z } from "zod";
+
 import {
   Button,
   DotsBounce,
@@ -7,12 +11,10 @@ import {
   Textarea,
   useAutoResizeTextArea,
 } from "@/app/components/ui";
-import React, { Fragment, Suspense, useCallback, useEffect, useRef } from "react";
-import { BsSend } from "react-icons/bs";
-import { useCreateGtpMessage, useCreateMessage, useGetMessages, useGetRoom } from "../api";
-import { z } from "zod";
-import { SENDER_TYPE } from "..";
 import { useScroll } from "@/app/hooks";
+
+import { SENDER_TYPE } from "..";
+import { useCreateGtpMessage, useCreateMessage, useGetMessages, useGetRoom } from "../api";
 
 type MessageProps = {
   isCreatingUserMessage: boolean;
@@ -26,8 +28,8 @@ const Messages = ({ isCreatingUserMessage, isCreatingGptMessage }: MessageProps)
         <Fragment key={index}>
           {sender === SENDER_TYPE.user && (
             <div className="text-right">
-              <div className="bg-primary inline-block rounded-lg px-4 py-2">
-                <p className="font-sm font-normal text-white whitespace-pre-wrap text-left">
+              <div className="inline-block rounded-lg bg-primary px-4 py-2">
+                <p className="font-sm whitespace-pre-wrap text-left font-normal text-white">
                   {text}
                 </p>
               </div>
@@ -35,8 +37,8 @@ const Messages = ({ isCreatingUserMessage, isCreatingGptMessage }: MessageProps)
           )}
           {sender === SENDER_TYPE.bot && (
             <div className="tex-left">
-              <div className="bg-muted inline-block rounded-lg px-4 py-2">
-                <p className="font-sm font-normal whitespace-pre-wrap">{text}</p>
+              <div className="inline-block rounded-lg bg-muted px-4 py-2">
+                <p className="font-sm whitespace-pre-wrap font-normal">{text}</p>
               </div>
             </div>
           )}
@@ -84,10 +86,10 @@ export const Chat = () => {
   };
 
   return (
-    <div className="flex flex-col justify-between h-full pb-2">
+    <div className="flex h-full flex-col justify-between pb-2">
       <h1 className="text-2xl">{roomName}</h1>
-      <div className="flex-grow overflow-y-auto font-bold pb-10" ref={scrollRef}>
-        <div className="max-w-[780px] w-full h-full m-auto">
+      <div className="grow overflow-y-auto pb-10 font-bold" ref={scrollRef}>
+        <div className="m-auto h-full w-full max-w-[780px]">
           <Suspense fallback={<PageSpinner />}>
             <div className="pb-14">
               <Messages
@@ -98,9 +100,9 @@ export const Chat = () => {
           </Suspense>
         </div>
       </div>
-      <div className="max-w-[780px] w-full m-auto">
+      <div className="m-auto w-full max-w-[780px]">
         <div className="relative">
-          <div className="absolute top-0 left-1/2 opacity-50 -translate-y-[120%] -translate-x-[120%]">
+          <div className="absolute left-1/2 top-0 -translate-x-[120%] -translate-y-[120%] opacity-50">
             <Button
               size="icon"
               className="rounded-full"
@@ -116,7 +118,7 @@ export const Chat = () => {
             schema={messageSchema}
           >
             {({ register, setValue }) => (
-              <div className="flex-shrink-0 relative flex gap-2 items-end">
+              <div className="relative flex shrink-0 items-end gap-2">
                 <Textarea
                   rows={1}
                   placeholder="send a message"

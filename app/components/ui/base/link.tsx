@@ -11,7 +11,7 @@ export type LinkProps = (
 };
 
 const styles = tv({
-  base: "text-state inline-flex items-center gap-2 text-text-bg",
+  base: "text-state text-text-bg inline-flex items-center gap-2",
 });
 
 export const Link = ({

@@ -1,4 +1,11 @@
 "use client";
+import { useParams } from "next/navigation";
+import React, { Suspense } from "react";
+import { BsTrash3 } from "react-icons/bs";
+import { MdOutlineModeEdit } from "react-icons/md";
+import { RiLogoutBoxLine } from "react-icons/ri";
+import * as z from "zod";
+
 import {
   Button,
   ButtonLink,
@@ -8,19 +15,15 @@ import {
   Input,
   Skeleton,
 } from "@/app/components/ui";
-import { BsTrash3 } from "react-icons/bs";
-import { MdOutlineModeEdit } from "react-icons/md";
-import { RiLogoutBoxLine } from "react-icons/ri";
-import React, { Suspense } from "react";
+import { useBoolean } from "@/app/hooks";
 import { firebaseAuth } from "@/app/libs";
 import { useAuth } from "@/app/providers";
-import { useDeleteRoom, useGetRooms, useUpdateRoom } from "../api";
 import { getPath } from "@/app/utils";
-import { useParams } from "next/navigation";
-import { CreateRoomDialog } from "./CreateRoomDialog";
+
 import { Room } from "..";
-import { useBoolean } from "@/app/hooks";
-import * as z from "zod";
+import { useDeleteRoom, useGetRooms, useUpdateRoom } from "../api";
+
+import { CreateRoomDialog } from "./CreateRoomDialog";
 
 export type InlineTitleUpdateRequest = {
   name: string;
@@ -47,7 +50,7 @@ const RoomItem = ({ id, name }: Room) => {
   return (
     <div
       key={id}
-      className={`group flex items-center gap-2 justify-between hover:bg-muted rounded-md ${
+      className={`group flex items-center justify-between gap-2 rounded-md hover:bg-muted ${
         roomId === id && "bg-muted"
       }`}
     >
@@ -71,6 +74,7 @@ const RoomItem = ({ id, name }: Room) => {
                     {...field}
                     type="text"
                     className="h-[52px]"
+                    // eslint-disable-next-line
                     autoFocus
                     disabled={isPendingUpdate}
                     onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -99,18 +103,18 @@ const RoomItem = ({ id, name }: Room) => {
       ) : (
         <ButtonLink
           variant="ghost"
-          className={`py-4 px-6 w-full h-full transition-none block rounded-md`}
+          className="block h-full w-full rounded-md px-6 py-4 transition-none"
           href={getPath.chat.room(id)}
         >
           {name}
         </ButtonLink>
       )}
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 py-1">
+      <div className="flex items-center gap-1 py-1 opacity-0 group-hover:opacity-100">
         <Button
           size="icon"
           aria-label="edit"
           variant="ghost"
-          className="hover:bg-white w-8"
+          className="w-8 hover:bg-white"
           onClick={() => editingOn()}
         >
           <MdOutlineModeEdit />
@@ -122,7 +126,7 @@ const RoomItem = ({ id, name }: Room) => {
               size="icon"
               aria-label="delete"
               variant="ghost"
-              className="text-destructive hover:bg-white hover:text-destructive w-8"
+              className="w-8 text-destructive hover:bg-white hover:text-destructive"
             >
               <BsTrash3 />
             </Button>
@@ -161,19 +165,19 @@ export const Rooms = () => {
     firebaseAuth.signOut();
   };
   return (
-    <div className="flex flex-col h-full">
-      <div className="sticky top-0 left-0 p-4 bg-white">
+    <div className="flex h-full flex-col">
+      <div className="sticky left-0 top-0 bg-white p-4">
         <CreateRoomDialog />
       </div>
-      <div className="flex-grow p-4">
-        <Suspense fallback={<Skeleton className="w-full h-6 py-4 px-6 border-b border-border" />}>
+      <div className="grow p-4">
+        <Suspense fallback={<Skeleton className="h-6 w-full border-b border-border px-6 py-4" />}>
           <RoomList />
         </Suspense>
       </div>
-      <div className="flex flex-col sticky bottom-0 left-0 bg-white p-4">
-        {user && <p className="p-4 text-md">{user.email}</p>}
+      <div className="sticky bottom-0 left-0 flex flex-col bg-white p-4">
+        {user && <p className="text-md p-4">{user.email}</p>}
         <Button
-          className="bg-muted text-black flex items-center gap-2 hover:bg-gray-200"
+          className="flex items-center gap-2 bg-muted text-black hover:bg-gray-200"
           onClick={handleLogout}
         >
           <RiLogoutBoxLine />

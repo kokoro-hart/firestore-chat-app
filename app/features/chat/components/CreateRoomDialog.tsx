@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import {
   Button,
   DialogFooter,
@@ -6,8 +8,8 @@ import {
   Form,
   Input,
 } from "@/app/components/ui";
+
 import { useCreateRoom } from "..";
-import { z } from "zod";
 
 export const schema = z.object({
   name: z.string().min(1, "required"),
