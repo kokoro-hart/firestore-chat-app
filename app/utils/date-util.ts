@@ -143,6 +143,15 @@ export class DateUtil {
   }
 
   /**
+   * 引数日付から、その月の先月初日の日付を返す
+   *
+   * @param format 返却する文字列のフォーマット
+   */
+  static getFirstDayOfPreviousMonthForDate(date: string, subtract = 1, format = DEFAULT_FORMAT) {
+    return defaultDayFormat(dayjs(date).subtract(subtract, "M").startOf("M").toString(), format);
+  }
+
+  /**
    * 引数日付から、その月の初日の日付を返す
    *
    * @param date 対象となる日付文字列
@@ -168,8 +177,8 @@ export class DateUtil {
    * @param date 対象となる日付文字列
    * @param format 返却する文字列のフォーマット
    */
-  static getLastDayOfNextMonthForDate(date: string, format = DEFAULT_FORMAT) {
-    return defaultDayFormat(dayjs(date).add(1, "M").endOf("M").toString(), format);
+  static getLastDayOfNextMonthForDate(date: string, subtract = 1, format = DEFAULT_FORMAT) {
+    return defaultDayFormat(dayjs(date).add(subtract, "M").endOf("M").toString(), format);
   }
 }
 
